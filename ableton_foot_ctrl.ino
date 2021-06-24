@@ -13,7 +13,11 @@
 #define ABLETON_STOP_TRANSPORT 'k'
 #define ABLETON_STOP_CLIPS 'l'
 
-boolean running = false;
+#define STOPPED = 0
+#define STARTED = 1
+#define MOVED = 2
+
+unsigned state = STOPPED;
 
 Bounce start_stop_bouncer = Bounce();
 Bounce next_bouncer = Bounce();
@@ -53,42 +57,29 @@ void loop() {
 }
 
 void onStartStopPressed() {
-  if (running) {
+  if (state == STARTED) {
     Keyboard.write(ABLETON_STOP_TRANSPORT);
     delay(1);
     Keyboard.write(ABLETON_STOP_CLIPS);
     delay(1);
     Keyboard.write(ABLETON_STOP_TRANSPORT);
+    state = STOPPED;
   } else {
     Keyboard.write(ABLETON_LAUNCH_SCENE);
-    delay(1);
-    Keyboard.write(ABLETON_PREV_SCENE);
+    state = STARTED;
   }
-  running = !running;
 }
 
 void onNextPressed() {
-  if (running) {
-    Keyboard.write(ABLETON_NEXT_SCENE);
-    delay(1);
-    Keyboard.write(ABLETON_LAUNCH_SCENE);
-    delay(1);
-    Keyboard.write(ABLETON_PREV_SCENE);
-  } else {
-    Keyboard.write(ABLETON_NEXT_SCENE);
+  Keyboard.write(ABLETON_NEXT_SCENE);
+  if (state == STARTED) {
+    state = MOVED;
   }
 }
 
 void onPrevPressed() {
-  if (running) {
-    Keyboard.write(ABLETON_PREV_SCENE);
-    delay(1);
-    Keyboard.write(ABLETON_LAUNCH_SCENE);
-    delay(1);
-    Keyboard.write(ABLETON_PREV_SCENE);
-  } else {
-    Keyboard.write(ABLETON_PREV_SCENE);
+  Keyboard.write(ABLETON_PREV_SCENE);
+  if (state == STARTED) {
+    state = MOVED;
   }
 }
-
-
